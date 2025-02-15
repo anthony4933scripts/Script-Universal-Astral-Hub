@@ -1,0 +1,186 @@
+-- Criando a GUI principal
+local AstralHub = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local ESPButton = Instance.new("TextButton")
+local DisableESPButton = Instance.new("TextButton")
+local FlyButton = Instance.new("TextButton")
+local CloseButton = Instance.new("TextButton")
+local MinimizeButton = Instance.new("TextButton")
+
+-- Adicionando UICorner
+local UICorner = Instance.new("UICorner")
+
+AstralHub.Name = "Astral Hub 0.1"
+AstralHub.Parent = game.CoreGui
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = AstralHub
+MainFrame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+MainFrame.Size = UDim2.new(0, 300, 0, 300)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -150)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = MainFrame
+
+ESPButton.Name = "ESPButton"
+ESPButton.Parent = MainFrame
+ESPButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+ESPButton.Size = UDim2.new(0, 280, 0, 50)
+ESPButton.Position = UDim2.new(0.5, -140, 0.5, -75)
+ESPButton.Text = "ESP"
+
+UICorner:Clone().Parent = ESPButton
+
+DisableESPButton.Name = "DisableESPButton"
+DisableESPButton.Parent = MainFrame
+DisableESPButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+DisableESPButton.Size = UDim2.new(0, 280, 0, 50)
+DisableESPButton.Position = UDim2.new(0.5, -140, 0.5, -15)
+DisableESPButton.Text = "Desativar ESP"
+
+UICorner:Clone().Parent = DisableESPButton
+
+FlyButton.Name = "FlyButton"
+FlyButton.Parent = MainFrame
+FlyButton.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+FlyButton.Size = UDim2.new(0, 280, 0, 50)
+FlyButton.Position = UDim2.new(0.5, -140, 0.5, 45)
+FlyButton.Text = "Fly"
+
+UICorner:Clone().Parent = FlyButton
+
+CloseButton.Name = "CloseButton"
+CloseButton.Parent = MainFrame
+CloseButton.BackgroundColor3 = Color3.new(0.8, 0.1, 0.1)
+CloseButton.Size = UDim2.new(0, 50, 0, 25)
+CloseButton.Position = UDim2.new(1, -55, 0, 5)
+CloseButton.Text = "X"
+
+UICorner:Clone().Parent = CloseButton
+
+MinimizeButton.Name = "MinimizeButton"
+MinimizeButton.Parent = MainFrame
+MinimizeButton.BackgroundColor3 = Color3.new(0.1, 0.1, 0.8)
+MinimizeButton.Size = UDim2.new(0, 50, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -110, 0, 5)
+MinimizeButton.Text = "-"
+
+UICorner:Clone().Parent = MinimizeButton
+
+local function createTween(object, targetSize, targetPosition, duration)
+    local tweenInfo = TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local tween = game:GetService("TweenService"):Create(object, tweenInfo, {Size = targetSize, Position = targetPosition})
+    tween:Play()
+end
+
+-- Função para ativar o ESP
+local function activateESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local espBox = Instance.new("BoxHandleAdornment")
+            espBox.Size = Vector3.new(4, 6, 1)
+            espBox.Adornee = player.Character:FindFirstChild("HumanoidRootPart")
+            espBox.AlwaysOnTop = true
+            espBox.ZIndex = 10
+            espBox.Color3 = Color3.new(1, 0, 0)
+            espBox.Name = "ESPBox"
+            espBox.Parent = player.Character:FindFirstChild("HumanoidRootPart")
+        end
+    end
+end
+
+-- Função para desativar o ESP
+local function deactivateESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer and player.Character then
+            local espBox = player.Character:FindFirstChild("HumanoidRootPart"):FindFirstChild("ESPBox")
+            if espBox then
+                espBox:Destroy()
+            end
+        end
+    end
+end
+
+-- Função para ativar o Fly
+local function activateFly()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
+
+    humanoid.PlatformStand = true
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    bodyVelocity.MaxForce = Vector3.new(100000, 100000, 100000)
+    bodyVelocity.Parent = character.HumanoidRootPart
+
+    local flying = true
+
+    game:GetService("UserInputService").InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            if input.KeyCode == Enum.KeyCode.W then
+                bodyVelocity.Velocity = character.HumanoidRootPart.CFrame.LookVector * 50
+            elseif input.KeyCode == Enum.KeyCode.S then
+                bodyVelocity.Velocity = -character.HumanoidRootPart.CFrame.LookVector * 50
+            elseif input.KeyCode == Enum.KeyCode.A then
+                bodyVelocity.Velocity = -character.HumanoidRootPart.CFrame.RightVector * 50
+            elseif input.KeyCode == Enum.KeyCode.D then
+                bodyVelocity.Velocity = character.HumanoidRootPart.CFrame.RightVector * 50
+            elseif input.KeyCode == Enum.KeyCode.Space then
+                bodyVelocity.Velocity = Vector3.new(0, 50, 0)
+            elseif input.KeyCode == Enum.KeyCode.LeftControl then
+                bodyVelocity.Velocity = Vector3.new(0, -50, 0)
+            end
+        end
+    end)
+
+    game:GetService("UserInputService").InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Keyboard then
+            if input.KeyCode == Enum.KeyCode.W or input.KeyCode == Enum.KeyCode.S or input.KeyCode == Enum.KeyCode.A or input.KeyCode == Enum.KeyCode.D or input.KeyCode == Enum.KeyCode.Space or input.KeyCode == Enum.KeyCode.LeftControl then
+                bodyVelocity.Velocity = Vector3.new(0, 0, 0)
+            end
+        end
+    end)
+end
+
+-- Conectando a função ao botão ESP
+ESPButton.MouseButton1Click:Connect(activateESP)
+
+-- Conectando a função ao botão Desativar ESP
+DisableESPButton.MouseButton1Click:Connect(deactivateESP)
+
+-- Conectando a função ao botão Fly
+FlyButton.MouseButton1Click:Connect(activateFly)
+
+-- Função para fechar a GUI
+CloseButton.MouseButton1Click:Connect(function()
+    createTween(MainFrame, UDim2.new(0, 0, 0, 0), UDim2.new(0.5, 0, 0.5, 0), 0.5)
+    wait(0.5)
+    AstralHub:Destroy()
+end)
+
+-- Variável para alternar entre minimizar e desminimizar
+local minimized = false
+
+-- Função para minimizar e desminimizar a GUI
+MinimizeButton.MouseButton1Click:Connect(function()
+    if minimized then
+        createTween(MainFrame, UDim2.new(0, 300, 0, 300), UDim2.new(0.5, -150, 0.5, -150), 0.5)
+        ESPButton.Visible = true
+        DisableESPButton.Visible = true
+        FlyButton.Visible = true
+        CloseButton.Visible = true
+    else
+        createTween(MainFrame, UDim2.new(0, 300, 0, 25), UDim2.new(0.5, -150, 0.5, -12.5), 0.5)
+        ESPButton.Visible = false
+        DisableESPButton.Visible = false
+        FlyButton.Visible = false
+        CloseButton.Visible = false
+    end
+    minimized = not minimized
+end)
+
+-- Função para animar a abertura da GUI
+createTween(MainFrame, UDim2.new(0, 300, 0, 300), UDim2.new(0.5, -150, 0.5, -150), 0.5)
